@@ -28,7 +28,7 @@ We welcome contributions! To contribute:
 - Fork the repository.
 - Create a new branch for your feature or bug fix.
 - Commit your changes and push them to your branch.
-- Create a pull request for review.\
+- Create a pull request for review.
 
 ## Contributors
 - Abdulwahid Ali
