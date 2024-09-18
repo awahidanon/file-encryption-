@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from cryptography.fernet import Fernet
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -75,8 +78,12 @@ WSGI_APPLICATION = 'encryption.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'encryption',
+        'USER': 'root',
+        'PASSWORD':'binali2158',
+        'PORT': 3306,
+        'HOST': '127.0.0.1'
     }
 }
 
@@ -117,7 +124,22 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL = '/images/'
+MEDIA_ROOT = os.path.join( BASE_DIR, 'static/')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Generate a key only once and store it in settings or secure storage
+if not os.path.exists("encryption_key.key"):
+    with open("encryption_key.key", "wb") as key_file:
+        key_file.write(Fernet.generate_key())
+
+# Load the key
+with open("encryption_key.key", "rb") as key_file:
+    ENCRYPTION_KEY = key_file.read()
+
+# Initialize the Fernet cipher
+CIPHER = Fernet(ENCRYPTION_KEY)
