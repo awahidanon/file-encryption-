@@ -1,13 +1,23 @@
 
-<h2>List of Uploaded Files</h2>
+<h2>Uploaded Files</h2>
+<table>
+    <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Uploaded</th>
+            <th>View Encrypted</th>
+            <th>Download</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in files %}
+        <tr>
+            <td>{{ file.file_name }}</td>
+            <td>{{ file.uploaded }}</td>
+            <td><a href="{% url 'view_encrypted_file' file.id %}">View Encrypted</a></td>
+            <td><a href="{% url 'download_file' file.id %}">Download</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-<ul>
-    {% for file in uploaded_files %}
-        <li>
-            <strong>{{ file.file_name }}</strong> - Uploaded on {{ file.uploaded }}
-            <a href="{% url 'download_file' file.id %}">Download</a>
-        </li>
-    {% empty %}
-        <li>No files uploaded yet.</li>
-    {% endfor %}
-</ul>
