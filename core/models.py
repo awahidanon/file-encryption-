@@ -9,3 +9,6 @@ class FileEncryption(models.Model):
 
     def __str__(self):
         return self.file_name
+
+    def get_absolute_url(self):
+        return reverse('download_file', args=[self.id])    

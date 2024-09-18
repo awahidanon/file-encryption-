@@ -7,6 +7,8 @@ from django.http import HttpResponse
 
 def upload_file(request):
     success_message = None
+    uploaded_files = FileEncryption.objects.all()  # Get the list of all uploaded files
+
     if request.method == 'POST':
         form = FileUpload(request.POST, request.FILES)
         if form.is_valid():
@@ -19,19 +21,18 @@ def upload_file(request):
 
             # Save the encrypted file in the database
             encrypted_file = FileEncryption(
-                file_name=uploaded_file.name,  # Use FileEncryption instead of EncryptedFile
-                uploade_file=uploaded_file,
-                encrypted_file=encrypted_data
+                file_name=uploaded_file.name,
+                encrypted_file=encrypted_data  # Save encrypted data
             )
             encrypted_file.save()
 
-            # Set success message to be shown on the same page
             success_message = "File uploaded and encrypted successfully!"
+            uploaded_files = FileEncryption.objects.all()  # Update list after saving new file
 
     else:
         form = FileUpload()
     
-    return render(request, 'core/upload.html', {'form': form, 'success_message': success_message})
+    return render(request, 'core/upload.html', {'form': form, 'success_message': success_message, 'uploaded_files': uploaded_files})
 
 def download_file(request, file_id):
     try:
@@ -48,9 +49,6 @@ def download_file(request, file_id):
     except FileEncryption.DoesNotExist:
         return HttpResponse('File not found', status=404)
 
-
 def list_uploaded_files(request):
-    # Get the list of all uploaded files from the database
     uploaded_files = FileEncryption.objects.all()
-    
     return render(request, 'core/file_list.html', {'uploaded_files': uploaded_files})
