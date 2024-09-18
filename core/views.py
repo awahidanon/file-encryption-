@@ -47,3 +47,10 @@ def download_file(request, file_id):
         return response
     except FileEncryption.DoesNotExist:
         return HttpResponse('File not found', status=404)
+
+
+def list_uploaded_files(request):
+    # Get the list of all uploaded files from the database
+    uploaded_files = FileEncryption.objects.all()
+    
+    return render(request, 'core/file_list.html', {'uploaded_files': uploaded_files})
