@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shared Files</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+      }
+      h1 {
+        text-align: center;
+      }
+      .file-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .file-item {
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        text-align: center;
+        transition: box-shadow 0.3s;
+      }
+      .file-item:hover {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+      .button {
+        margin-top: 10px;
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+      }
+      .button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Shared Files</h1>
+    <div class="file-list" id="fileList"></div>
+
+    <script>
+      // Example shared files data
+      const sharedFiles = [
+        { name: "Report.pdf", sharedWith: "User A", permissions: "View" },
+        {
+          name: "Presentation.pptx",
+          sharedWith: "User B",
+          permissions: "Edit",
+        },
+        { name: "Budget.xlsx", sharedWith: "User C", permissions: "View" },
+        { name: "Design.png", sharedWith: "User D", permissions: "Edit" },
+      ];
+
+      const fileList = document.getElementById("fileList");
+
+      // Function to display shared files
+      function displaySharedFiles() {
+        sharedFiles.forEach((file) => {
+          const fileItem = document.createElement("div");
+          fileItem.className = "file-item";
+          fileItem.innerHTML = `
+                    <strong>${file.name}</strong><br>
+                    Shared with: ${file.sharedWith}<br>
+                    Permissions: ${file.permissions}<br>
+                    <button class="button" onclick="managePermissions('${file.name}')">Manage Permissions</button>
+                `;
+          fileList.appendChild(fileItem);
+        });
+      }
+
+      // Function to manage shared permissions
+      function managePermissions(fileName) {
+        const newPermission = prompt(
+          `Change permissions for ${fileName} (View/Edit):`,
+          "View"
+        );
+        if (newPermission === "View" || newPermission === "Edit") {
+          const file = sharedFiles.find((f) => f.name === fileName);
+          if (file) {
+            file.permissions = newPermission;
+            alert(`Permissions for ${fileName} updated to ${newPermission}`);
+            location.reload(); // Reload to show updated permission (for simplicity)
+          }
+        } else {
+          alert('Invalid permission. Please enter "View" or "Edit".');
+        }
+      }
+
+      // Load shared files on page load
+      window.onload = displaySharedFiles;
+    </script>
+  </body>
+</html>
