@@ -15,17 +15,17 @@ function resetModal() {
 
 function createFolder() {
   const folderNameInput = document.getElementById("folderName");
-  const folderName = folderNameInput.value;
+  const folderName = folderNameInput.value.trim();
 
   if (folderName) {
     const folderItem = document.createElement("div");
     folderItem.className = "folder-item";
     folderItem.textContent = folderName;
+
     folderItem.onclick = () => openFolder(folderName);
 
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "Delete";
-    deleteButton.className = "button";
     deleteButton.onclick = (e) => {
       e.stopPropagation();
       deleteFolder(folderItem);
@@ -42,7 +42,6 @@ function createFolder() {
 
 function openFolder(folderName) {
   alert(`Opening folder: ${folderName}`);
-  // You can implement navigation logic here
 }
 
 function deleteFolder(folderItem) {

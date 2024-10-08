@@ -1,4 +1,4 @@
-// Example file data (replace with actual data as needed)
+// Example file data (static for demonstration)
 const fileData = {
   name: "example-file.pdf",
   size: "1.2 MB",
@@ -16,19 +16,18 @@ function displayFileDetails(file) {
 
 // Function to handle sharing the file
 function shareFile() {
-  alert("File shared successfully!"); // Replace with actual sharing logic
+  alert("File shared successfully!"); // Placeholder for sharing logic
 }
 
 // Function to handle downloading the file
 function downloadFile() {
-  alert("Downloading " + fileData.name); // Replace with actual download logic
+  alert("Downloading " + fileData.name); // Placeholder for download logic
 }
 
 // Function to handle deleting the file
 function deleteFile() {
   if (confirm("Are you sure you want to delete this file?")) {
-    alert(fileData.name + " has been deleted."); // Replace with actual delete logic
-    // Optionally redirect or update the UI here
+    alert(fileData.name + " has been deleted."); // Placeholder for delete logic
   }
 }
 

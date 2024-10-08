@@ -23,7 +23,7 @@ function displayFiles(fileArray) {
   fileArray.forEach((file) => {
     const fileItem = document.createElement("div");
     fileItem.className = "file-item";
-    fileItem.textContent = file.name;
+    fileItem.textContent = file.name; // Show file name
     fileList.appendChild(fileItem);
   });
 }

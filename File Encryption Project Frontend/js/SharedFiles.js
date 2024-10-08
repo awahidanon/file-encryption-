@@ -14,15 +14,16 @@ const fileList = document.getElementById("fileList");
 
 // Function to display shared files
 function displaySharedFiles() {
+  fileList.innerHTML = ""; // Clear previous items
   sharedFiles.forEach((file) => {
     const fileItem = document.createElement("div");
     fileItem.className = "file-item";
     fileItem.innerHTML = `
-                    <strong>${file.name}</strong><br>
-                    Shared with: ${file.sharedWith}<br>
-                    Permissions: ${file.permissions}<br>
-                    <button class="button" onclick="managePermissions('${file.name}')">Manage Permissions</button>
-                `;
+            <strong>${file.name}</strong><br>
+            Shared with: ${file.sharedWith}<br>
+            Permissions: ${file.permissions}<br>
+            <button class="button" onclick="managePermissions('${file.name}')">Manage Permissions</button>
+          `;
     fileList.appendChild(fileItem);
   });
 }
@@ -38,7 +39,7 @@ function managePermissions(fileName) {
     if (file) {
       file.permissions = newPermission;
       alert(`Permissions for ${fileName} updated to ${newPermission}`);
-      location.reload(); // Reload to show updated permission (for simplicity)
+      displaySharedFiles(); // Refresh to show updated permission
     }
   } else {
     alert('Invalid permission. Please enter "View" or "Edit".');

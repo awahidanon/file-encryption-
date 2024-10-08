@@ -7,10 +7,10 @@ function uploadFile() {
   if (file) {
     const fileItem = document.createElement("div");
     fileItem.className = "file-item";
-    fileItem.textContent = file.name;
+    fileItem.textContent = file.name; // Display the file name
     fileList.appendChild(fileItem);
     fileInput.value = ""; // Clear input
   } else {
-    alert("Please select a file to upload.");
+    alert("Please select a file to upload."); // Alert if no file is selected
   }
 }
