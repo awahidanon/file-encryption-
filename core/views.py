@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .forms import FileUpload
 from .models import FileEncryption
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse,  HttpResponseForbidden
 import base64
 
 def upload_file(request):
@@ -50,16 +50,39 @@ def list_uploaded_files(request):
     files = FileEncryption.objects.all()
     return render(request, 'core/file_list.html', {'files': files})
 
+from django.http import HttpResponse, HttpResponseForbidden
+from .models import FileEncryption
+import base64
+
+# Password protection for viewing encrypted or decrypted files
 def view_encrypted_file(request, file_id):
+    password = request.GET.get('password')  # Get password from query params
+
     try:
         encrypted_file = FileEncryption.objects.get(id=file_id)
-        
+
         # Get the encrypted content
         encrypted_data = encrypted_file.encrypted_file
-        
-        # Optionally, encode in base64 to make it readable as text
-        encoded_data = base64.b64encode(encrypted_data).decode('utf-8')
 
-        return HttpResponse(f"<pre>{encoded_data}</pre>", content_type='text/plain')
+        # Check if password is correct
+        if password == '123':
+            # Decrypt the content
+            decrypted_data = settings.CIPHER.decrypt(encrypted_data)
+            
+            # Detect if the file is text or binary and handle accordingly
+            try:
+                # Try to decode as UTF-8 (text file)
+                decoded_data = decrypted_data.decode('utf-8')
+                return HttpResponse(f"<pre>{decoded_data}</pre>", content_type='text/plain')
+            except UnicodeDecodeError:
+                # If decoding fails, assume it's a binary file (like image, PDF, etc.)
+                response = HttpResponse(decrypted_data, content_type='application/octet-stream')
+                response['Content-Disposition'] = f'attachment; filename="{encrypted_file.file_name}"'
+                return response
+        else:
+            # If password is incorrect, show encrypted content (in base64)
+            encoded_data = base64.b64encode(encrypted_data).decode('utf-8')
+            return HttpResponse(f"<pre>{encoded_data}</pre>", content_type='text/plain')
+
     except FileEncryption.DoesNotExist:
         return HttpResponse('File not found', status=404)
