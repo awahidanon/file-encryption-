@@ -1,0 +1,5 @@
+# aes_pycrptodome.py
+# for mobile.csv file
+encryption Time: 2000.09 microseconds
+decryption Time: 1001.12 microseconds
+#formula: Elapsed Time in microseconds=(tend −tstart)×1,000,000
