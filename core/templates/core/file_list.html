@@ -1,0 +1,26 @@
+<h2>Uploaded Files</h2>
+<table>
+    <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Uploaded</th>
+            <th>View Encrypted/Decrypted</th>
+            <th>Download</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in files %}
+        <tr>
+            <td>{{ file.file_name }}</td>
+            <td>{{ file.uploaded }}</td>
+            <td>
+                <form method="GET" action="{% url 'view_encrypted_file' file.id %}">
+                    <input type="password" name="password" placeholder="Enter password">
+                    <button type="submit">View</button>
+                </form>
+            </td>
+            <td><a href="{% url 'download_file' file.id %}">Download</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
