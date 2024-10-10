@@ -11,7 +11,7 @@ def efp(fpath):
     with open(fpath, 'rb') as file:
         file_data = file.read()
     edata = cipher.encrypt(pad(file_data, AES.block_size))
-    with open(fpath + '.aes.enc', 'wb') as file:
+    with open(fpath + '.aes.enc', 'wb') as file:  # the file is read by .aes.enc
         file.write(iv + edata)
     return key, iv, edata
 # decrypt file pycrptodome
