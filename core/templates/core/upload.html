@@ -1,15 +1,24 @@
+{% extends 'main.html' %}
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    
-    {% if success_message %}
-        <div class="alert alert-success">
-            {{ success_message }}
+{% block title %}
+    Upload Files
+{% endblock %}
+
+{% block content %}
+    <form method="post" enctype="multipart/form-data" class="w-full max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+        {% csrf_token %}
+        
+        {% if success_message %}
+            <div class="alert alert-success text-green-600 bg-green-100 p-4 rounded mb-4">
+                {{ success_message }}
+            </div>
+        {% endif %}
+        
+        <div class="space-y-4">
+            {{ form.as_p }}
         </div>
-    {% endif %}
-    
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Upload</button>
-    <br>
-    <a href="{% url 'list_uploaded_files' %}"> View</a>
-</form>
+
+        <button type="submit" class="btn btn-primary w-full mt-4">Upload</button>
+
+    </form>
+{% endblock %}
