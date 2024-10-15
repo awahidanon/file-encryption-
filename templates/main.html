@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 
 <head>
@@ -29,9 +30,11 @@
     <!-- Main container -->
     <div class="flex-grow container mx-auto p-4">
         <!-- Navbar or header section -->
-        <header class="mb-8">
+        <header class="mb-10">
+            {% if user.is_authenticated %}
             <nav class="bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
                 <div class="flex space-x-4">
+                    <img src="{% static 'images/logo.jpg' %}" alt="Your Logo" class="rounded-full" style="width: 40px; height: 40px; object-fit: cover;">
                     <a href="/" class="btn btn-link text-primary">Home</a>
                     <a href="{% url 'list_uploaded_files' %}" class="btn btn-link text-primary">View</a>
                 </div>
@@ -58,6 +61,7 @@
                     {% endif %}
                 </div>
             </nav>
+            {% endif %}
         </header>
 
         <!-- Main content section -->
