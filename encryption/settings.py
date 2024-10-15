@@ -145,3 +145,8 @@ with open("encryption_key.key", "rb") as key_file:
 
 # Initialize the Fernet cipher
 CIPHER = Fernet(ENCRYPTION_KEY)
+
+LOGIN_REDIRECT_URL = 'upload_file'
+
+LOGIN_URL = 'login'  
+LOGOUT_REDIRECT_URL = 'login' 
