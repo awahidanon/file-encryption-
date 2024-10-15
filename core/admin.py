@@ -15,3 +15,8 @@ class FileEncryptionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(FileEncryption, FileEncryptionAdmin)
+
+
+admin.site.site_header = "File Encryption Storage"
+admin.site.site_title = "File Encryption "
+admin.site.index_title = "Welcome to File Encryption "
