@@ -1,0 +1,20 @@
+{% extends 'main.html' %}
+
+{% block title %}Share file{% endblock %}
+
+{% block content %}
+            <!-- Dynamic content will go here -->
+            <div class="max-w-lg mx-auto bg-white p-8 shadow-md rounded-lg">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">Share File {{ file.file_name }}</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="username" class="block text-gray-700 font-bold mb-2">Username:</label>
+                        <input type="text" id="username" name="username" class="input input-bordered w-full" required>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button type="submit" class="btn btn-primary">Share File</button>
+                    </div>
+                </form>
+            </div>
+{% endblock %}
