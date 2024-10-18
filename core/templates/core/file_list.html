@@ -28,7 +28,8 @@
                     <input type="password" name="password" placeholder="Enter password" class="input input-bordered input-sm w-full max-w-xs">
                     <button type="submit" class="btn btn-sm btn-primary">View</button>
                 </form>
-
+                <!-- Share button -->
+                <a href="{% url 'share_file' file.id %}" class="btn btn-sm btn-primary w-full text-center">Share</a> 
                 <!-- Download button -->
                 <a href="{% url 'download_file' file.id %}" class="btn btn-sm btn-secondary w-full text-center">Download</a>
             </div>
