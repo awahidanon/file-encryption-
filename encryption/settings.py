@@ -162,3 +162,10 @@ EMAIL_HOST_PASSWORD = 'email_password'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+# settings.py
+
+#To set the session expiration time 
+SESSION_COOKIE_AGE = 60 * 60  *  24
+
+#To set session to expire when the user closes the browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

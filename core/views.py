@@ -7,12 +7,42 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm)
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
-
+from django.http import HttpResponse ,HttpResponseForbidden
+from django.shortcuts import redirect, render , get_object_or_404
+from django.urls import reverse
 from .forms import CustomPasswordChangeForm, FileUpload
 from .models import FileEncryption
+from django.contrib.auth.models import User
 
+
+@login_required
+def share_file(request, file_id):
+    encrypted_file = get_object_or_404(FileEncryption, id=file_id, owner=request.user)
+    if request.method == 'POST':
+        shared_with_username = request.POST['username']
+        shared_user = get_object_or_404(User, username=shared_with_username)
+        encrypted_file.shared_with.add(shared_user)
+        encrypted_file.save()
+        share_link = request.build_absolute_uri(
+            reverse('access_shared_file', kwargs={'token': encrypted_file.share_token})
+        )
+        return render(request, 'core/share_success.html', {'share_link': share_link})
+
+    return render(request, 'core/share_file.html', {'file': encrypted_file})
+
+@login_required
+def access_shared_file(request, token):
+    try:
+        encrypted_file = FileEncryption.objects.get(share_token=token)
+        if request.user in encrypted_file.shared_with.all() or encrypted_file.owner == request.user:
+            decrypted_data = settings.CIPHER.decrypt(encrypted_file.encrypted_file)
+            response = HttpResponse(decrypted_data, content_type='application/octet-stream')
+            response['Content-Disposition'] = f'attachment; filename="{encrypted_file.file_name}"'
+            return response
+        else:
+            return HttpResponseForbidden('You do not have permission to access this file.')
+    except FileEncryption.DoesNotExist:
+        return HttpResponse('File not found', status=404)
 
 @login_required
 def upload_file(request):
@@ -29,7 +59,9 @@ def upload_file(request):
             # Save the encrypted file in the database
             encrypted_file = FileEncryption(
                 file_name=uploaded_file.name,
-                encrypted_file=encrypted_data,  # Save encrypted binary data
+                encrypted_file=encrypted_data,
+                owner=request.user
+                  # Save encrypted binary data
             )
             encrypted_file.save()
 
