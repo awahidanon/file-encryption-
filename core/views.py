@@ -96,9 +96,10 @@ def download_file(request, file_id):
 
 @login_required
 def list_uploaded_files(request):
-    # Fetch all uploaded files from the database
-    files = FileEncryption.objects.all()
+    # Fetch only the files uploaded by the current user (owner)
+    files = FileEncryption.objects.filter(owner=request.user)
     return render(request, "core/file_list.html", {"files": files})
+
 
 
 @login_required
