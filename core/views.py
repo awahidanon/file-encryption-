@@ -1,5 +1,5 @@
 import base64
-
+import magic
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
@@ -117,7 +117,13 @@ def view_encrypted_file(request, file_id):
         if password == "123":
             # Decrypt the content
             decrypted_data = settings.CIPHER.decrypt(encrypted_data)
-
+            #check file type 
+            def get_file_type(file):
+                mime = magic.Magic(mime= True)
+                return mime.from_buffer(file.read(1024))
+            mime_type=get_file_type(decrypted_data)
+            if mime_type == 'application/pdf':
+                print ("it is pdf")
             # Detect if the file is text or binary and handle accordingly
             try:
                 # Try to decode as UTF-8 (text file)
