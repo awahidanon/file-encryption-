@@ -12,6 +12,7 @@ class FileEncryption(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     shared_with = models.ManyToManyField(User, related_name='shared_files', blank=True)
     share_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    
 
 
     def __str__(self):

@@ -1,5 +1,7 @@
 import base64
+import hashlib
 
+from cryptography.fernet import Fernet
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
@@ -13,6 +15,7 @@ from django.urls import reverse
 from .forms import CustomPasswordChangeForm, FileUpload
 from .models import FileEncryption
 from django.contrib.auth.models import User
+ 
 
 
 @login_required
@@ -43,6 +46,7 @@ def access_shared_file(request, token):
             return HttpResponseForbidden('You do not have permission to access this file.')
     except FileEncryption.DoesNotExist:
         return HttpResponse('File not found', status=404)
+    
 
 @login_required
 def upload_file(request):
@@ -52,27 +56,27 @@ def upload_file(request):
         if form.is_valid():
             uploaded_file = request.FILES["uploade_file"]
 
+            # Generate a password from the file name and year
+            password = f"{uploaded_file.name}2024"
+            key = hashlib.sha256(password.encode()).digest()
+            cipher = Fernet(base64.urlsafe_b64encode(key[:32]))
+
             # Read and encrypt the file content
             file_data = uploaded_file.read()
-            encrypted_data = settings.CIPHER.encrypt(file_data)
+            encrypted_data = cipher.encrypt(file_data)
 
             # Save the encrypted file in the database
             encrypted_file = FileEncryption(
                 file_name=uploaded_file.name,
                 encrypted_file=encrypted_data,
                 owner=request.user
-                  # Save encrypted binary data
             )
             encrypted_file.save()
-
             success_message = "File uploaded and encrypted successfully!"
-
     else:
         form = FileUpload()
 
-    return render(
-        request, "core/upload.html", {"form": form, "success_message": success_message}
-    )
+    return render(request, "core/upload.html", {"form": form, "success_message": success_message})
 
 
 @login_required
@@ -103,44 +107,40 @@ def list_uploaded_files(request):
 
 
 @login_required
-# Password protection for viewing encrypted or decrypted files
 def view_encrypted_file(request, file_id):
-    password = request.GET.get("password")  # Get password from query params
+    password = request.GET.get("password")
+    encrypted_file = get_object_or_404(FileEncryption, id=file_id)
 
+    # Verify that a password is provided
+    if not password:
+        return HttpResponse("Password is required to view the file", status=400)
+
+    # Verify that the password matches the expected format
+    expected_password = f"{encrypted_file.file_name}2024"
+    if password != expected_password:
+        # If password is incorrect, show encrypted content (in base64)
+        encoded_data = base64.b64encode(encrypted_file.encrypted_file).decode("utf-8")
+        return HttpResponse(f"<pre>Encrypted Content:\n{encoded_data}</pre>", content_type="text/plain")
+
+    # Create a cipher with the provided password
+    key = hashlib.sha256(password.encode()).digest()
+    cipher = Fernet(base64.urlsafe_b64encode(key[:32]))
+
+    # Decrypt the content
+    encrypted_data = encrypted_file.encrypted_file
+    decrypted_data = cipher.decrypt(encrypted_data)
+
+    # Detect if the file is text or binary and handle accordingly
     try:
-        encrypted_file = FileEncryption.objects.get(id=file_id)
+        # Try to decode as UTF-8 (text file)
+        decoded_data = decrypted_data.decode("utf-8")
+        return HttpResponse(f"<pre>{decoded_data}</pre>", content_type="text/plain")
+    except UnicodeDecodeError:
+        # If decoding fails, assume it's a binary file (like image, PDF, etc.)
+        response = HttpResponse(decrypted_data, content_type="application/octet-stream")
+        response["Content-Disposition"] = f'attachment; filename="{encrypted_file.file_name}"'
+        return response
 
-        # Get the encrypted content
-        encrypted_data = encrypted_file.encrypted_file
-
-        # Check if password is correct
-        if password == "123":
-            # Decrypt the content
-            decrypted_data = settings.CIPHER.decrypt(encrypted_data)
-
-            # Detect if the file is text or binary and handle accordingly
-            try:
-                # Try to decode as UTF-8 (text file)
-                decoded_data = decrypted_data.decode("utf-8")
-                return HttpResponse(
-                    f"<pre>{decoded_data}</pre>", content_type="text/plain"
-                )
-            except UnicodeDecodeError:
-                # If decoding fails, assume it's a binary file (like image, PDF, etc.)
-                response = HttpResponse(
-                    decrypted_data, content_type="application/octet-stream"
-                )
-                response["Content-Disposition"] = (
-                    f'attachment; filename="{encrypted_file.file_name}"'
-                )
-                return response
-        else:
-            # If password is incorrect, show encrypted content (in base64)
-            encoded_data = base64.b64encode(encrypted_data).decode("utf-8")
-            return HttpResponse(f"<pre>{encoded_data}</pre>", content_type="text/plain")
-
-    except FileEncryption.DoesNotExist:
-        return HttpResponse("File not found", status=404)
 
 
 def login(request):
