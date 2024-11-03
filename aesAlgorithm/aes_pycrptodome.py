@@ -22,7 +22,7 @@ def dfp(fpath, key, iv, edata):
         file.write(ddata)
     return ddata
 # csv data loads
-fpath = 'mobile.csv'
+fpath = 'aesAlgorithm/mobile.csv'
 
 # Encryption
 start_time = time.time()
