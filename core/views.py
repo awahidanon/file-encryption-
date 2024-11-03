@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import mimetypes
 
 from cryptography.fernet import Fernet
 from django.conf import settings
@@ -12,9 +13,11 @@ from django.contrib.auth.forms import (AuthenticationForm, UserCreationForm)
 from django.http import HttpResponse ,HttpResponseForbidden
 from django.shortcuts import redirect, render , get_object_or_404
 from django.urls import reverse
+from django.contrib.auth.models import User
 from .forms import CustomPasswordChangeForm, FileUpload
 from .models import FileEncryption
-from django.contrib.auth.models import User
+from .utils import track_action
+
  
 
 
@@ -130,17 +133,35 @@ def view_encrypted_file(request, file_id):
     encrypted_data = encrypted_file.encrypted_file
     decrypted_data = cipher.decrypt(encrypted_data)
 
-    # Detect if the file is text or binary and handle accordingly
-    try:
-        # Try to decode as UTF-8 (text file)
-        decoded_data = decrypted_data.decode("utf-8")
-        return HttpResponse(f"<pre>{decoded_data}</pre>", content_type="text/plain")
-    except UnicodeDecodeError:
-        # If decoding fails, assume it's a binary file (like image, PDF, etc.)
-        response = HttpResponse(decrypted_data, content_type="application/octet-stream")
-        response["Content-Disposition"] = f'attachment; filename="{encrypted_file.file_name}"'
-        return response
+    # Detect file type to determine display method
+    mime_type, _ = mimetypes.guess_type(encrypted_file.file_name)
 
+    if mime_type:
+        if mime_type.startswith("text"):
+            # Display text files as plain text
+            decoded_data = decrypted_data.decode("utf-8")
+            return HttpResponse(f"<pre>{decoded_data}</pre>", content_type="text/plain")
+
+        elif mime_type.startswith("image"):
+            # Display images in the browser
+            return HttpResponse(decrypted_data, content_type=mime_type)
+
+        elif mime_type == "application/pdf":
+            # Embed PDFs in the browser
+            response = HttpResponse(decrypted_data, content_type="application/pdf")
+            response["Content-Disposition"] = f'inline; filename="{encrypted_file.file_name}"'
+            return response
+
+        else:
+            
+            response = HttpResponse(decrypted_data, content_type=mime_type)
+            response["Content-Disposition"] = f'inline; filename="{encrypted_file.file_name}"'
+            return response
+
+    # Fallback for unsupported or unknown file types - prompt download
+    response = HttpResponse(decrypted_data, content_type="application/octet-stream")
+    response["Content-Disposition"] = f'attachment; filename="{encrypted_file.file_name}"'
+    return response
 
 
 def login(request):
@@ -189,3 +210,5 @@ def profile(request):
 def log_out(request):
     logout(request)
     return redirect("login")
+
+
