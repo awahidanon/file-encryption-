@@ -1,3 +1,5 @@
 *env
 *static
 *mobile.csv
+*mobile.csv.aes.dec
+*mobile.csv.aes.enc
